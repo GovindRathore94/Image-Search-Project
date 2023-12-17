@@ -1,4 +1,4 @@
-- 👋 Hi, I’m @GovindRathore94
+- 👋 Hi, I’m @Govind Rathore
 - 👀 I’m interested in Sharing my knowledge.
 - 🌱 I’m currently learning New Technologies
 - 💞️ I’m looking to collaborate on Backend development team.
