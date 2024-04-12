@@ -1,100 +1,51 @@
-const searchForm = document.querySelector("form");
-const movieContainer = document.querySelector(".movie-container");
-const inputBox = document.querySelector(".inputBox");
 
-// Function to find movie details Using OMDB API
+const accessKey = "**YOUR ACCESS KEY FROM (api.unsplash.com)**";
 
-const getMovieInfo = async (movie) => {
-  try {
-    const myApiKey = "1d2d3802";
-    const url = `https://www.omdbapi.com/?apikey=${myApiKey}&t=${movie}`;
+const searchForm = document.getElementById("search-form");
+const searchBox = document.getElementById("search-box");
+const searchResult = document.getElementById("search-result");
+const showMoreBtn = document.getElementById("show-more-btn");
+
+let keyword = "";
+let page = 1;
+
+async function searchImage(){
+    keyword = searchBox.value;
+    const url = `https://api.unsplash.com/search/photos?page=${page}&query=${keyword}&client_id=${accessKey}&per_page=12`
 
     const response = await fetch(url);
-
-    console.log(response.status);
-
-    //to check response from network
-
-    if (!response.ok) {
-      throw new error("Unable to fetch movie data");
-    }
-
-    // console.log(response.status);
-
     const data = await response.json();
 
-    showMovieData(data);
-  } catch (error) {
-    showErrorMessage("No Movie found !!");
-  }
-};
+    if(page ===1){
+        searchResult.innerHTML = "";
+    }
 
-// Function to show movie data on screen
+    const results = data.results
 
-const showMovieData = (data) => {
-  movieContainer.innerHTML = ""; // Clear Prevoius search data from screen
+    // console.log(data);
+    // console.log(results);
 
-  movieContainer.classList.remove("noBackgroung");
+    results.map((result)=>{
+        const image = document.createElement("img");
+        image.src = result.urls.small;
+        const imageLink = document.createElement("a");
+        imageLink.href = result.links.html;
+        imageLink.target = "_blank";
 
-  // Use Destructuring assignment to extract property from data Object
+        imageLink.appendChild(image);
 
-  const { Title, imdbRating, Genre, Released, Runtime, Actors, Plot, Poster } =
-    data;
+        searchResult.appendChild(imageLink);
+    })
+    showMoreBtn.style.display = "block";
+}
 
-  // Add Div for Titel And Rating.
-  const movieElement = document.createElement("div");
-  movieElement.classList.add("movie-info");
-  movieElement.innerHTML = `<h2>${Title}</h2> <p> <strong> Rating: &#11088; </strong>${imdbRating}</p>`;
+searchForm.addEventListener("submit", (e)=>{
+    e.preventDefault();
+    page = 1;
+    searchImage()
+})
 
-  // Add Div for Genre.
-
-  const movieGenreElement = document.createElement("div");
-  movieGenreElement.classList.add("movie-genre");
-
-  Genre.split(",").forEach((element) => {
-    const p = document.createElement("p");
-    p.innerText = element;
-    movieGenreElement.appendChild(p);
-  });
-
-  movieElement.appendChild(movieGenreElement);
-
-  movieElement.innerHTML += `<p><strong>Released Date:</strong> ${Released}</p> <p><strong> Duration:</strong> ${Runtime}</p><strong>
-    <p>Cast:</strong>  ${Actors}</p> <p><strong>Plot:</strong> ${Plot}</p>`;
-
-  // Creating A div for movie Poster
-  const moviePosterElement = document.createElement("div");
-  moviePosterElement.classList.add("movie-poster");
-  moviePosterElement.innerHTML = `<img src="${Poster}"/>`;
-
-  movieContainer.appendChild(moviePosterElement);
-
-  movieContainer.appendChild(movieElement);
-};
-
-// Function to display error Message
-
-const showErrorMessage = (message) => {
-  movieContainer.innerHTML = `<h2> ${message} </h2`;
-  movieContainer.classList.add("noBackgroung");
-};
-
-// Function to habndle form submission
-
-const handleformSubmission = (e) => {
-  e.preventDefault();
-  // console.log(inputBox.value);
-
-  const movieName = inputBox.value.trim();
-
-  if (movieName !== "") {
-    showErrorMessage(`<img src="./img/loading.gif" alt="" >`);
-
-    getMovieInfo(movieName);
-  } else {
-    showErrorMessage("Enter movie name to get movie Information");
-  }
-};
-
-// Adding Event Listener to Search Form
-searchForm.addEventListener("submit", handleformSubmission);
+showMoreBtn.addEventListener("click", ()=>{
+    page++;
+    searchImage();
+})
